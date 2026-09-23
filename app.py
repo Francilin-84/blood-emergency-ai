@@ -465,15 +465,77 @@ if len(compatible_donors) > 0:
     # DONOR REQUEST
     # =================================================
 
-    if st.button("🩸 Request Donation From Top Donor"):
+   # ============================================================
+# DONOR REQUEST & RESPONSE TRACKING
+# ============================================================
 
-        st.success(
-            f"📨 Donation request simulated for "
-            f"**{top_donor['Donor']}**."
+# Create a unique key for the currently recommended donor
+current_donor_key = f"{blood_group}_{top_donor['Donor']}"
+
+# Reset response when a different donor is selected
+if st.session_state.get("donor_request_key") != current_donor_key:
+    st.session_state.donor_request_key = current_donor_key
+    st.session_state.donor_request_sent = False
+    st.session_state.donor_response = "Not Requested"
+
+
+if st.button("🩸 Request Donation From Top Donor"):
+
+    st.session_state.donor_request_sent = True
+    st.session_state.donor_response = "Awaiting Response"
+
+    st.success(
+        f"📨 Donation request sent to "
+        f"**{top_donor['Donor']}**."
+    )
+
+    st.info(
+        "🟡 Donor response is currently **Awaiting Response**."
+    )
+
+
+# Show response tracking after request is sent
+if st.session_state.donor_request_sent:
+
+    st.subheader("📱 Donor Response Tracking")
+
+    response = st.session_state.donor_response
+
+    if response == "Awaiting Response":
+
+        st.warning(
+            f"🟡 **Awaiting Response** from "
+            f"**{top_donor['Donor']}**"
         )
 
         st.write(
-            f"📱 Contact: {top_donor['Phone']}"
+            "The donor has been notified. "
+            "For this prototype, the response can be simulated below."
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button(
+                "✅ Simulate Accept",
+                key="simulate_accept"
+            ):
+                st.session_state.donor_response = "Accepted"
+                st.rerun()
+
+        with col2:
+            if st.button(
+                "❌ Simulate Decline",
+                key="simulate_decline"
+            ):
+                st.session_state.donor_response = "Declined"
+                st.rerun()
+
+
+    elif response == "Accepted":
+
+        st.success(
+            f"🟢 **{top_donor['Donor']} accepted the donation request.**"
         )
 
         st.write(
@@ -481,9 +543,28 @@ if len(compatible_donors) > 0:
         )
 
         st.write(
-            "⚠️ This is a prototype notification only. "
-            "Actual donor contact must follow hospital procedures."
+            "🏥 Hospital can now proceed with the "
+            "next coordination step."
         )
+
+
+    elif response == "Declined":
+
+        st.error(
+            f"🔴 **{top_donor['Donor']} declined the donation request.**"
+        )
+
+        st.warning(
+            "⚠️ The hospital should contact the next "
+            "priority donor."
+        )
+
+
+    st.caption(
+        "⚠️ Prototype response tracking only. "
+        "Actual donor communication and medical eligibility "
+        "must follow authorized hospital/blood-bank procedures."
+    )
 
 else:
 
