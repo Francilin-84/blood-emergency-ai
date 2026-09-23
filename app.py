@@ -13,6 +13,57 @@ st.set_page_config(
     page_icon="🩸",
     layout="wide"
 )
+# ============================================================
+# LOGIN / AUTHENTICATION
+# ============================================================
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "user_role" not in st.session_state:
+    st.session_state.user_role = ""
+
+if not st.session_state.logged_in:
+
+    st.title("🩸 RED STREAM")
+    st.subheader("Blood Emergency Management System")
+
+    st.markdown("### 🔐 User Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    role = st.selectbox(
+        "Select Role",
+        ["Hospital", "Blood Bank", "Admin"]
+    )
+
+    if st.button("🔑 Login", use_container_width=True):
+
+        demo_users = {
+            "hospital": ("hospital123", "Hospital"),
+            "bloodbank": ("blood123", "Blood Bank"),
+            "admin": ("admin123", "Admin")
+        }
+
+        if username in demo_users:
+            correct_password, correct_role = demo_users[username]
+
+            if password == correct_password and role == correct_role:
+                st.session_state.logged_in = True
+                st.session_state.user_role = role
+                st.rerun()
+            else:
+                st.error("❌ Incorrect username, password or role.")
+        else:
+            st.error("❌ User not found.")
+
+    st.info(
+        "Demo accounts: hospital / hospital123 | "
+        "bloodbank / blood123 | admin / admin123"
+    )
+
+    st.stop()
 
 # =========================================================
 # TITLE
